@@ -1,0 +1,60 @@
+name: Build Nexus APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'app/**'
+      - 'build.gradle'
+      - 'settings.gradle'
+      - 'gradle.properties'
+      - '.github/workflows/build-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Official Gradle action — installs the exact Gradle version we ask for
+      # and handles caching. We do NOT commit a gradlew wrapper on purpose:
+      # a corrupted/mismatched gradle-wrapper.jar or missing execute bit on
+      # gradlew is one of the most common causes of CI build failures.
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      # google-services.json is required by the Firebase plugin for push
+      # notifications. If the secret isn't set yet, we skip it — app/build.gradle
+      # only applies the Firebase plugin when this file exists, so the build
+      # still succeeds (just without push notifications) rather than failing.
+      - name: Write google-services.json (if configured)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
+            echo "google-services.json written — Firebase push notifications will be built in."
+          else
+            echo "GOOGLE_SERVICES_JSON secret not set — building WITHOUT push notifications."
+            echo "(Add it in Settings → Secrets → Actions once you've set up Firebase.)"
+          fi
+
+      - name: Build debug APK
+        run: gradle assembleDebug --stacktrace --no-daemon
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
