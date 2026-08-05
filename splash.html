@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"/>
+<title>Nexus</title>
+<style>
+  html,body{
+    margin:0;padding:0;width:100%;height:100%;overflow:hidden;
+    background:#0B0F1A;
+    display:flex;align-items:center;justify-content:center;
+    font-family:sans-serif;
+  }
+  #stage{
+    position:relative;width:220px;height:220px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  /* Center logo */
+  #logo{
+    position:relative;z-index:5;
+    width:78px;height:78px;border-radius:22px;
+    background:linear-gradient(135deg,#6366F1,#A855F7);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2.1rem;font-weight:800;color:#fff;
+    box-shadow:0 0 30px rgba(99,102,241,0.55);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.06); }
+  }
+  /* 5 concentric orbit rings, each holding one light that sweeps around */
+  .orbit{
+    position:absolute;top:50%;left:50%;border-radius:50%;
+    border:1px solid rgba(255,255,255,0.08);
+    transform:translate(-50%,-50%);
+  }
+  .orbit .dot{
+    position:absolute;width:10px;height:10px;border-radius:50%;
+    background:#2A3350;
+    top:50%;left:50%;
+    transform-origin:0 0;
+  }
+  .orbit .dot::after{
+    content:'';position:absolute;inset:0;border-radius:50%;
+    background:inherit;
+  }
+  /* Each ring: size + a delayed "lit sweep" animation, one lighting up after another */
+  .r1{width:104px;height:104px;}
+  .r2{width:132px;height:132px;}
+  .r3{width:160px;height:160px;}
+  .r4{width:188px;height:188px;}
+  .r5{width:216px;height:216px;}
+
+  .r1 .dot{ animation: spin 4s linear infinite, glow 2.5s ease-in-out infinite; animation-delay: 0s, 0s; }
+  .r2 .dot{ animation: spin 4s linear infinite, glow 2.5s ease-in-out infinite; animation-delay: 0s, 0.4s; }
+  .r3 .dot{ animation: spin 4s linear infinite, glow 2.5s ease-in-out infinite; animation-delay: 0s, 0.8s; }
+  .r4 .dot{ animation: spin 4s linear infinite, glow 2.5s ease-in-out infinite; animation-delay: 0s, 1.2s; }
+  .r5 .dot{ animation: spin 4s linear infinite, glow 2.5s ease-in-out infinite; animation-delay: 0s, 1.6s; }
+
+  .r1 .dot{ animation-duration: 3s, 2.5s; }
+  .r2 .dot{ animation-duration: 3.8s, 2.5s; }
+  .r3 .dot{ animation-duration: 4.6s, 2.5s; }
+  .r4 .dot{ animation-duration: 5.4s, 2.5s; }
+  .r5 .dot{ animation-duration: 6.2s, 2.5s; }
+
+  @keyframes spin{
+    from{ transform: rotate(0deg) translateX(var(--radius)) rotate(0deg); }
+    to{ transform: rotate(360deg) translateX(var(--radius)) rotate(-360deg); }
+  }
+  @keyframes glow{
+    0%,100%{ background:#2A3350; box-shadow:none; }
+    50%{ background:#A855F7; box-shadow:0 0 12px 3px rgba(168,85,247,0.9); }
+  }
+
+  #brand{
+    position:absolute;bottom:14%;left:0;right:0;text-align:center;
+    color:#8892B0;font-size:.8rem;letter-spacing:.15em;font-weight:600;
+  }
+  #status{
+    position:absolute;bottom:8%;left:0;right:0;text-align:center;
+    color:#4B5675;font-size:.68rem;letter-spacing:.05em;
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div class="orbit r1"><div class="dot" style="--radius:52px"></div></div>
+    <div class="orbit r2"><div class="dot" style="--radius:66px"></div></div>
+    <div class="orbit r3"><div class="dot" style="--radius:80px"></div></div>
+    <div class="orbit r4"><div class="dot" style="--radius:94px"></div></div>
+    <div class="orbit r5"><div class="dot" style="--radius:108px"></div></div>
+    <div id="logo">N</div>
+  </div>
+  <div id="brand">NEXUS</div>
+  <div id="status">Connecting…</div>
+
+<script>
+  // Give the animation a beat to render, then hand off to the native
+  // Android shell, which swaps this splash for the live WebView.
+  // (If this file is ever opened directly in a normal browser instead of
+  // inside the wrapper app, it just redirects to the live site.)
+  setTimeout(function () {
+    if (window.NexusNative && window.NexusNative.splashDone) {
+      window.NexusNative.splashDone();
+    } else {
+      window.location.href = "https://hemel24-massanger.hf.space";
+    }
+  }, 2400);
+</script>
+</body>
+</html>
