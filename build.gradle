@@ -1,25 +1,57 @@
-buildscript {
-    ext.kotlin_version = '1.9.24'
-    repositories {
-        google()
-        mavenCentral()
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.nexus.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.nexus.app"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        // Only needed if app/google-services.json is present (see app/build.gradle) —
-        // harmless to keep on the classpath either way.
-        classpath 'com.google.gms:google-services:4.4.2'
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+            // No signingConfig set on purpose — see the workflow file for how the
+            // debug build is produced by default. Add your own signing config
+            // here once you're ready to publish to the Play Store.
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.activity:activity-ktx:1.9.2'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')
+    implementation 'com.google.firebase:firebase-messaging-ktx'
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+// ── Firebase is optional ──────────────────────────────────────────
+// The google-services plugin HARD-FAILS the build if app/google-services.json
+// is missing. To keep this project buildable before you've set up Firebase
+// (so you can verify the Android/CI plumbing works first), the plugin is
+// only applied when that file actually exists. Once you download your real
+// google-services.json from the Firebase console and place it here (the
+// workflow does this from a GitHub secret), push notifications activate
+// automatically — no other change needed.
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
 }
